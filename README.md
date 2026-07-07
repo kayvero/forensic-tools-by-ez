@@ -298,6 +298,270 @@ Kalau ditanya **"harus mulai dari mana pas dapet 1 disk image/triage folder?"**,
 6. Semua hasil CSV → buka & analisis pakai EZViewer
 ```
 
+
+# Skenario Penggunaan Tools Forensik Windows
+
+## Kasus
+
+Seorang karyawan diduga membocorkan dokumen rahasia perusahaan sebelum resign.
+
+Laptop disita dan dibuat **disk image**. Investigator ingin mengetahui:
+
+- Apakah dokumen pernah dibuka?
+- Program apa yang digunakan?
+- Kapan terakhir dibuka?
+- Apakah menggunakan USB?
+- Apakah file dihapus?
+- Berapa lama file dikerjakan?
+
+---
+
+# 1. Autopsy
+
+**Fungsi**
+- Melihat isi disk image.
+- Mencari file, browser history, recycle bin, dan file yang terhapus.
+
+**Menjawab**
+- Apakah file masih ada?
+- Apakah file sudah dihapus?
+- Di mana lokasi file?
+
+**Contoh Hasil**
+
+```
+Proposal_Final.docx ditemukan.
+Status: Deleted
+Lokasi: D:\Project\
+```
+
+**Kesimpulan**
+
+✔ File memang pernah ada.
+
+---
+
+# 2. MFTECmd
+
+**Artefak**
+
+```
+$MFT
+```
+
+**Fungsi**
+Membaca metadata file NTFS.
+
+**Menjawab**
+- Kapan file dibuat?
+- Kapan diubah?
+- Kapan dihapus?
+
+**Contoh Hasil**
+
+```
+Created : 20 Juni
+Modified: 27 Juni
+Deleted : 28 Juni 17:14
+```
+
+**Kesimpulan**
+
+✔ File dihapus pada 28 Juni pukul 17:14.
+
+---
+
+# 3. PECmd
+
+**Artefak**
+
+```
+Prefetch (.pf)
+```
+
+**Fungsi**
+Melihat aplikasi yang pernah dijalankan.
+
+**Menjawab**
+- Program apa yang dijalankan?
+- Berapa kali dijalankan?
+- Kapan terakhir dijalankan?
+
+**Contoh Hasil**
+
+```
+WINWORD.EXE
+
+Run Count : 57
+Last Run  : 28 Juni 17:05
+```
+
+**Kesimpulan**
+
+✔ Microsoft Word dijalankan sebelum file dihapus.
+
+---
+
+# 4. JLECmd
+
+**Artefak**
+
+```
+Jump Lists
+```
+
+**Fungsi**
+Melihat file yang dibuka oleh suatu aplikasi.
+
+**Menjawab**
+- File apa yang dibuka?
+- Folder apa yang dibuka?
+- Kapan terakhir dibuka?
+
+**Contoh Hasil**
+
+```
+WINWORD.EXE
+
+Opened:
+Proposal_Final.docx
+
+Last Open:
+28 Juni 17:04
+```
+
+**Kesimpulan**
+
+✔ Word benar-benar membuka file tersebut.
+
+---
+
+# 5. LECmd
+
+**Artefak**
+
+```
+Shortcut (.lnk)
+```
+
+**Fungsi**
+Melihat informasi shortcut Windows.
+
+**Menjawab**
+- File apa yang pernah dibuka?
+- Lokasi file?
+- Apakah berasal dari USB?
+
+**Contoh Hasil**
+
+```
+Target:
+D:\Project\Proposal_Final.docx
+
+Volume:
+KINGSTON
+
+Drive Serial:
+1234-ABCD
+```
+
+**Kesimpulan**
+
+✔ Ada indikasi file diakses menggunakan USB Kingston.
+
+---
+
+# 6. WxTCmd
+
+**Artefak**
+
+```
+ActivitiesCache.db
+```
+
+**Fungsi**
+Membaca Windows Timeline.
+
+**Menjawab**
+- Berapa lama aplikasi digunakan?
+- Berapa lama file dikerjakan?
+
+**Contoh Hasil**
+
+```
+WINWORD.EXE
+
+Focus Duration:
+2 Jam 34 Menit
+```
+
+**Kesimpulan**
+
+✔ Dokumen dikerjakan cukup lama.
+
+---
+
+# Timeline Hasil Investigasi
+
+| Waktu | Bukti |
+|-------|-------|
+|17:00|Word dijalankan (PECmd)|
+|17:04|Proposal dibuka (JLECmd)|
+|17:04|Shortcut menunjukkan USB Kingston (LECmd)|
+|17:05|Word terakhir dijalankan (PECmd)|
+|17:14|File dihapus (MFTECmd)|
+|2 jam 34 menit|Word aktif (WxTCmd)|
+
+Autopsy melengkapi dengan file yang telah dihapus dan lokasi penyimpanannya.
+
+---
+
+# Alur Penggunaan
+
+```
+Disk Image
+     │
+     ▼
+ Autopsy
+     │
+     ├── File ditemukan
+     │
+     ├── MFTECmd → Kapan file dibuat/diubah/dihapus
+     │
+     ├── PECmd → Program apa yang dijalankan
+     │
+     ├── JLECmd → File apa yang dibuka
+     │
+     ├── LECmd → Apakah berasal dari USB
+     │
+     └── WxTCmd → Berapa lama aplikasi digunakan
+                    │
+                    ▼
+          Susun Timeline Investigasi
+```
+
+---
+
+# Ringkasan
+
+| Tool | Fungsi Utama |
+|------|---------------|
+|Autopsy|Melihat isi disk image, recovery file, browser history|
+|MFTECmd|Metadata file (Create, Modify, Delete)|
+|PECmd|Riwayat aplikasi yang dijalankan|
+|JLECmd|File/folder yang dibuka oleh aplikasi|
+|LECmd|Informasi shortcut dan indikasi penggunaan USB|
+|WxTCmd|Durasi penggunaan aplikasi/file (Windows Timeline)|
+
+## Cara Mengingat
+
+- **Autopsy** → Cari file.
+- **MFTECmd** → Kapan file berubah.
+- **PECmd** → Program apa yang dijalankan.
+- **JLECmd** → File apa yang dibuka.
+- **LECmd** → Dari mana file berasal (termasuk USB).
+- **WxTCmd** → Berapa lama pengguna mengerjakan file.
+
 ---
 
 *Catatan pendamping untuk writeup Windows Forensics 2 (TryHackMe). Disusun untuk referensi cepat per-tool.*
