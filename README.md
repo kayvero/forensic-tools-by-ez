@@ -10,26 +10,27 @@
 
 ## Daftar Tool
 
-| No | Tool | Pre / Artefak | Lokasi Artefak Windows | Kegunaan | Pertanyaan yang Dijawab | KAPE |
-|----|------|---------------|------------------------|----------|-------------------------|------|
-| 1 | Autopsy | Disk Image (.E01, .dd, .raw, .vmdk) | Hasil imaging | Analisis disk secara keseluruhan | File apa saja yang ada? File terhapus? Browser history? | ❌ |
-| 2 | MFTECmd.exe | `$MFT`, `$Boot` | `C:\$MFT` | Metadata NTFS | Kapan file dibuat, diubah, dipindahkan, dihapus? | ✅ |
-| 3 | PECmd.exe | Prefetch (`*.pf`) | `C:\Windows\Prefetch\` | Evidence of Execution | Program apa yang dijalankan? Berapa kali? Kapan terakhir? | ✅ |
-| 4 | JLECmd.exe | Jump Lists (`AutomaticDestinations-ms`, `CustomDestinations-ms`) | `%AppData%\Microsoft\Windows\Recent\AutomaticDestinations\` | File yang dibuka aplikasi | Dokumen apa yang dibuka menggunakan Word, Excel, dll.? | ✅ |
-| 5 | LECmd.exe | Shortcut (`*.lnk`) | `%AppData%\Microsoft\Windows\Recent\` | Shortcut & USB | File berasal dari mana? Pernah dibuka dari USB? | ✅ |
-| 6 | WxTCmd.exe | `ActivitiesCache.db` | `%LocalAppData%\ConnectedDevicesPlatform\` | Windows Timeline | Berapa lama aplikasi digunakan? Aktivitas user apa? | ✅ |
-| 7 | EvtxECmd.exe | Event Log (`*.evtx`) | `C:\Windows\System32\winevt\Logs\` | Windows Event Log | Login, logout, shutdown, error, service, PowerShell | ✅ |
-| 8 | RECmd.exe | Registry Hive | `SYSTEM`, `SOFTWARE`, `SAM`, `SECURITY`, `NTUSER.DAT`, `USRCLASS.DAT` | Analisis Registry | USB, autorun, konfigurasi sistem, MRU, Run Keys | ✅ |
-| 9 | Registry Explorer | Registry Hive | Sama seperti RECmd | Viewer Registry (GUI) | Membaca Registry secara manual | ❌ |
-| 10 | AmcacheParser.exe | `Amcache.hve` | `C:\Windows\AppCompat\Programs\Amcache.hve` | Riwayat aplikasi | Aplikasi apa yang pernah diinstal/dijalankan? | ✅ |
-| 11 | AppCompatCacheParser.exe | `SYSTEM` (ShimCache) | `C:\Windows\System32\Config\SYSTEM` | ShimCache | Executable apa yang pernah dijalankan? | ✅ |
-| 12 | RBCmd.exe | `$Recycle.Bin` (`$I`, `$R`) | `C:\$Recycle.Bin\` | Recycle Bin | File apa yang dihapus? Kapan? Dari lokasi mana? | ✅ |
-| 13 | SBECmd.exe | ShellBags | Registry (`NTUSER.DAT`, `USRCLASS.DAT`) | Folder History | Folder apa yang pernah dibuka? | ✅ |
-| 14 | SrumECmd.exe | `SRUDB.dat` | `C:\Windows\System32\sru\SRUDB.dat` | SRUM | Aplikasi apa yang memakai jaringan? Konsumsi daya? | ✅ |
-| 15 | SQLECmd.exe | SQLite Database | Chrome History, Edge History, aplikasi lain | SQLite Parser | Browser history, chat database, aplikasi | ✅ |
-| 16 | Timeline Explorer | CSV hasil parser | Output parser | Timeline Viewer | Memfilter dan mengurutkan hasil CSV | ❌ |
-| 17 | EZViewer | CSV hasil parser | Output parser | CSV Viewer | Membaca output CSV dengan mudah | ❌ |
-| 18 | KAPE | Live System / Disk / Folder | Seluruh sistem | Collection & Automation | Mengumpulkan artefak dan menjalankan parser otomatis | — |
+
+| No | Tool | Pre / Artefak | Bentuk File | Lokasi Artefak Windows | Kegunaan | Pertanyaan yang Dijawab | KAPE |
+|----|------|---------------|-------------|------------------------|----------|-------------------------|------|
+|1|Autopsy|Disk Image|`.E01`, `.dd`, `.raw`, `.vmdk`|Hasil imaging|Analisis disk|File apa saja yang ada? File terhapus?|❌|
+|2|MFTECmd.exe|`$MFT`, `$Boot`|File sistem NTFS|`C:\$MFT`|Metadata NTFS|Kapan file dibuat/diubah/dihapus?|✅|
+|3|PECmd.exe|Prefetch|`.pf`|`C:\Windows\Prefetch\`|Evidence of Execution|Program apa dijalankan?|✅|
+|4|JLECmd.exe|Jump Lists|`.automaticDestinations-ms`, `.customDestinations-ms`|`%AppData%\...\AutomaticDestinations\`|File yang dibuka|Dokumen apa dibuka?|✅|
+|5|LECmd.exe|Shortcut|`.lnk`|`%AppData%\Microsoft\Windows\Recent\`|Shortcut & USB|File dari USB?|✅|
+|6|WxTCmd.exe|Activities Cache|`ActivitiesCache.db`|`%LocalAppData%\ConnectedDevicesPlatform\`|Windows Timeline|Durasi penggunaan aplikasi?|✅|
+|7|EvtxECmd.exe|Event Log|`.evtx`|`C:\Windows\System32\winevt\Logs\`|Windows Event Log|Login, shutdown, error?|✅|
+|8|RECmd.exe|Registry Hive|`SYSTEM`, `SOFTWARE`, `SAM`, `SECURITY`, `NTUSER.DAT`, `USRCLASS.DAT`|Registry|Analisis Registry|USB, autorun, MRU?|✅|
+|9|Registry Explorer|Registry Hive|Hive Registry|Sama seperti RECmd|Viewer Registry|Analisis manual|❌|
+|10|AmcacheParser.exe|Amcache|`Amcache.hve`|`C:\Windows\AppCompat\Programs\`|Riwayat aplikasi|Program pernah diinstal?|✅|
+|11|AppCompatCacheParser.exe|ShimCache|Hive `SYSTEM`|`C:\Windows\System32\Config\SYSTEM`|ShimCache|Executable pernah dijalankan?|✅|
+|12|RBCmd.exe|Recycle Bin|`$I`, `$R`|`C:\$Recycle.Bin\`|Recycle Bin|File yang dihapus?|✅|
+|13|SBECmd.exe|ShellBags|Registry Keys|`NTUSER.DAT`, `USRCLASS.DAT`|Folder History|Folder pernah dibuka?|✅|
+|14|SrumECmd.exe|SRUM|`SRUDB.dat`|`C:\Windows\System32\sru\`|SRUM|Aktivitas aplikasi & jaringan?|✅|
+|15|SQLECmd.exe|SQLite Database|`.db`, `.sqlite`, `History`|Chrome/Edge/App|SQLite Parser|Browser history?|✅|
+|16|Timeline Explorer|CSV Output|`.csv`|Output parser|Timeline Viewer|Filter timeline|❌|
+|17|EZViewer|CSV Output|`.csv`|Output parser|CSV Viewer|Membaca CSV|❌|
+|18|KAPE|Live System/Disk|Folder & berbagai artefak|Seluruh sistem|Collection & Automation|Mengumpulkan artefak & menjalankan parser|—|
 
 ---
 
