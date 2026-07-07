@@ -1,3 +1,94 @@
+
+# Windows DFIR - Eric Zimmerman Tools Ringkasan
+
+## Legenda
+
+- **Pre / Artefak** = File yang dianalisis tool.
+- **KAPE** = Apakah KAPE dapat mengumpulkan artefak dan/atau menjalankan parser tersebut melalui Module.
+
+---
+
+## Daftar Tool
+
+| No | Tool | Pre / Artefak | Lokasi Artefak Windows | Kegunaan | Pertanyaan yang Dijawab | KAPE |
+|----|------|---------------|------------------------|----------|-------------------------|------|
+| 1 | Autopsy | Disk Image (.E01, .dd, .raw, .vmdk) | Hasil imaging | Analisis disk secara keseluruhan | File apa saja yang ada? File terhapus? Browser history? | ❌ |
+| 2 | MFTECmd.exe | `$MFT`, `$Boot` | `C:\$MFT` | Metadata NTFS | Kapan file dibuat, diubah, dipindahkan, dihapus? | ✅ |
+| 3 | PECmd.exe | Prefetch (`*.pf`) | `C:\Windows\Prefetch\` | Evidence of Execution | Program apa yang dijalankan? Berapa kali? Kapan terakhir? | ✅ |
+| 4 | JLECmd.exe | Jump Lists (`AutomaticDestinations-ms`, `CustomDestinations-ms`) | `%AppData%\Microsoft\Windows\Recent\AutomaticDestinations\` | File yang dibuka aplikasi | Dokumen apa yang dibuka menggunakan Word, Excel, dll.? | ✅ |
+| 5 | LECmd.exe | Shortcut (`*.lnk`) | `%AppData%\Microsoft\Windows\Recent\` | Shortcut & USB | File berasal dari mana? Pernah dibuka dari USB? | ✅ |
+| 6 | WxTCmd.exe | `ActivitiesCache.db` | `%LocalAppData%\ConnectedDevicesPlatform\` | Windows Timeline | Berapa lama aplikasi digunakan? Aktivitas user apa? | ✅ |
+| 7 | EvtxECmd.exe | Event Log (`*.evtx`) | `C:\Windows\System32\winevt\Logs\` | Windows Event Log | Login, logout, shutdown, error, service, PowerShell | ✅ |
+| 8 | RECmd.exe | Registry Hive | `SYSTEM`, `SOFTWARE`, `SAM`, `SECURITY`, `NTUSER.DAT`, `USRCLASS.DAT` | Analisis Registry | USB, autorun, konfigurasi sistem, MRU, Run Keys | ✅ |
+| 9 | Registry Explorer | Registry Hive | Sama seperti RECmd | Viewer Registry (GUI) | Membaca Registry secara manual | ❌ |
+| 10 | AmcacheParser.exe | `Amcache.hve` | `C:\Windows\AppCompat\Programs\Amcache.hve` | Riwayat aplikasi | Aplikasi apa yang pernah diinstal/dijalankan? | ✅ |
+| 11 | AppCompatCacheParser.exe | `SYSTEM` (ShimCache) | `C:\Windows\System32\Config\SYSTEM` | ShimCache | Executable apa yang pernah dijalankan? | ✅ |
+| 12 | RBCmd.exe | `$Recycle.Bin` (`$I`, `$R`) | `C:\$Recycle.Bin\` | Recycle Bin | File apa yang dihapus? Kapan? Dari lokasi mana? | ✅ |
+| 13 | SBECmd.exe | ShellBags | Registry (`NTUSER.DAT`, `USRCLASS.DAT`) | Folder History | Folder apa yang pernah dibuka? | ✅ |
+| 14 | SrumECmd.exe | `SRUDB.dat` | `C:\Windows\System32\sru\SRUDB.dat` | SRUM | Aplikasi apa yang memakai jaringan? Konsumsi daya? | ✅ |
+| 15 | SQLECmd.exe | SQLite Database | Chrome History, Edge History, aplikasi lain | SQLite Parser | Browser history, chat database, aplikasi | ✅ |
+| 16 | Timeline Explorer | CSV hasil parser | Output parser | Timeline Viewer | Memfilter dan mengurutkan hasil CSV | ❌ |
+| 17 | EZViewer | CSV hasil parser | Output parser | CSV Viewer | Membaca output CSV dengan mudah | ❌ |
+| 18 | KAPE | Live System / Disk / Folder | Seluruh sistem | Collection & Automation | Mengumpulkan artefak dan menjalankan parser otomatis | — |
+
+---
+
+## Kapan Menggunakan Tool Ini?
+
+| Jika Ingin Mengetahui... | Gunakan |
+|--------------------------|----------|
+| File pernah ada atau sudah dihapus | Autopsy, MFTECmd, RBCmd |
+| Program apa yang dijalankan | PECmd |
+| Dokumen apa yang dibuka | JLECmd |
+| File berasal dari USB | LECmd |
+| Durasi penggunaan aplikasi | WxTCmd |
+| Login, logout, shutdown | EvtxECmd |
+| Registry Windows | RECmd, Registry Explorer |
+| Aplikasi yang pernah diinstal | AmcacheParser |
+| Executable yang pernah dijalankan | AppCompatCacheParser |
+| Folder yang pernah dibuka | SBECmd |
+| Aktivitas jaringan aplikasi | SrumECmd |
+| Browser History / SQLite | SQLECmd |
+| Melihat timeline hasil analisis | Timeline Explorer |
+| Membaca CSV hasil parser | EZViewer |
+| Mengotomatisasi semuanya | KAPE |
+
+---
+
+## Urutan Belajar yang Direkomendasikan
+
+| Level | Tool |
+|-------|------|
+| ⭐ Dasar | Autopsy |
+| ⭐⭐ | MFTECmd |
+| ⭐⭐⭐ | PECmd |
+| ⭐⭐⭐ | JLECmd |
+| ⭐⭐⭐ | LECmd |
+| ⭐⭐⭐⭐ | WxTCmd |
+| ⭐⭐⭐⭐ | EvtxECmd |
+| ⭐⭐⭐⭐ | RECmd |
+| ⭐⭐⭐⭐ | AmcacheParser |
+| ⭐⭐⭐⭐ | AppCompatCacheParser |
+| ⭐⭐⭐⭐ | RBCmd |
+| ⭐⭐⭐⭐ | SBECmd |
+| ⭐⭐⭐⭐⭐ | SrumECmd |
+| ⭐⭐⭐⭐⭐ | SQLECmd |
+| ⭐⭐⭐⭐⭐ | Timeline Explorer |
+| ⭐⭐⭐⭐⭐ | EZViewer |
+| 🚀 Setelah paham semuanya | KAPE |
+
+---
+
+## Kesimpulan Praktis
+
+1. **Autopsy** → Melihat keseluruhan disk image dan mengekstrak artefak.
+2. **Eric Zimmerman Tools** → Menganalisis artefak spesifik (MFT, Prefetch, Registry, Event Log, SRUM, dll.).
+3. **Timeline Explorer / EZViewer** → Membaca, memfilter, dan menggabungkan hasil analisis CSV.
+4. **KAPE** → Mengotomatisasi pengumpulan artefak dan menjalankan sebagian besar parser sehingga investigasi menjadi lebih cepat.
+
+
+
+
 # Breakdown Tools Forensik Windows — Eric Zimmerman's Tools (EZtools) & Autopsy
 
 > Catatan pendamping dari writeup **Windows Forensics 2 (TryHackMe)**.
