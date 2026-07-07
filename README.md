@@ -88,6 +88,358 @@
 4. **KAPE** → Mengotomatisasi pengumpulan artefak dan menjalankan sebagian besar parser sehingga investigasi menjadi lebih cepat.
 
 
+# Windows Registry Forensics setelah KapeTriage
+
+Dokumen ini menjelaskan registry hive yang dikumpulkan oleh **KapeTriage**, fungsi masing-masing, lokasi asli, tool analisis yang digunakan, serta contoh pertanyaan forensik yang dapat dijawab.
+
+---
+
+# Alur KAPE
+
+```
+Windows
+    │
+    ▼
+KapeTriage
+(Collection)
+    │
+    ▼
+Evidence
+    │
+    ├── Registry
+    ├── EventLogs
+    ├── Prefetch
+    ├── Browser
+    ├── SRUM
+    ├── JumpLists
+    └── dll
+    │
+    ▼
+EZParser / RECmd / Registry Explorer
+    │
+    ▼
+CSV / Timeline / Report
+```
+
+---
+
+# Registry Hive
+
+| Hive | Lokasi Asli | Fungsi | Tool |
+|------|-------------|--------|------|
+| SYSTEM | C:\Windows\System32\Config\SYSTEM | Konfigurasi sistem | RECmd, Registry Explorer |
+| SOFTWARE | C:\Windows\System32\Config\SOFTWARE | Konfigurasi software | RECmd, Registry Explorer |
+| SAM | C:\Windows\System32\Config\SAM | Database akun lokal | Registry Explorer |
+| SECURITY | C:\Windows\System32\Config\SECURITY | Kebijakan keamanan | Registry Explorer |
+| DEFAULT | C:\Windows\System32\Config\DEFAULT | Default user profile | Registry Explorer |
+| COMPONENTS | C:\Windows\System32\Config\COMPONENTS | Windows Component Store | Registry Explorer |
+| BCD | EFI\Microsoft\Boot\BCD | Boot Configuration | Registry Explorer |
+| NTUSER.DAT | C:\Users\<User>\NTUSER.DAT | Aktivitas user | RECmd, Registry Explorer |
+| UsrClass.dat | C:\Users\<User>\AppData\Local\Microsoft\Windows\UsrClass.dat | Explorer & Shell | RECmd, Registry Explorer |
+
+---
+
+# SYSTEM
+
+Lokasi
+
+```
+C:\Windows\System32\Config\SYSTEM
+```
+
+Berisi konfigurasi Windows.
+
+## Artefak Penting
+
+| Artefak | Registry Path | Fungsi |
+|----------|---------------|--------|
+| USBSTOR | Enum\USBSTOR | Riwayat USB |
+| MountedDevices | MountedDevices | Drive yang pernah dipasang |
+| ComputerName | Control\ComputerName | Nama komputer |
+| TimeZone | Control\TimeZoneInformation | Zona waktu |
+| ShutdownTime | Control\Windows | Shutdown terakhir |
+| Services | Services | Daftar service |
+
+### Menjawab Pertanyaan
+
+- USB apa yang pernah dipasang?
+- Kapan komputer dimatikan?
+- Nama komputer?
+- Timezone komputer?
+
+---
+
+# SOFTWARE
+
+Lokasi
+
+```
+C:\Windows\System32\Config\SOFTWARE
+```
+
+Berisi konfigurasi aplikasi.
+
+## Artefak Penting
+
+| Artefak | Registry Path | Fungsi |
+|----------|---------------|--------|
+| Uninstall | Microsoft\Windows\CurrentVersion\Uninstall | Program terinstal |
+| Run | Microsoft\Windows\CurrentVersion\Run | Startup |
+| RunOnce | Microsoft\Windows\CurrentVersion\RunOnce | Startup sekali |
+| NetworkList | Microsoft\Windows NT\CurrentVersion\NetworkList | Network yang pernah terhubung |
+| App Paths | Microsoft\Windows\CurrentVersion\App Paths | Lokasi executable |
+
+### Menjawab Pertanyaan
+
+- Software apa yang terinstal?
+- Ada malware startup?
+- Pernah terhubung ke WiFi apa?
+
+---
+
+# SAM
+
+Lokasi
+
+```
+C:\Windows\System32\Config\SAM
+```
+
+Berisi akun lokal.
+
+## Artefak
+
+- Username
+- RID
+- Password Hash (memerlukan tool khusus)
+
+### Menjawab Pertanyaan
+
+- Siapa administrator?
+- Berapa akun lokal?
+
+---
+
+# SECURITY
+
+Lokasi
+
+```
+C:\Windows\System32\Config\SECURITY
+```
+
+Berisi informasi keamanan.
+
+## Artefak
+
+- LSA Secrets
+- Cached Credentials
+- Audit Policy
+
+### Menjawab Pertanyaan
+
+- Kebijakan keamanan?
+- Credential cache?
+
+---
+
+# DEFAULT
+
+Lokasi
+
+```
+C:\Windows\System32\Config\DEFAULT
+```
+
+Berisi konfigurasi default user profile.
+
+Biasanya jarang digunakan dalam CTF.
+
+---
+
+# COMPONENTS
+
+Lokasi
+
+```
+C:\Windows\System32\Config\COMPONENTS
+```
+
+Berisi informasi Windows Component Store.
+
+Biasanya digunakan pada investigasi update Windows.
+
+---
+
+# BCD
+
+Lokasi
+
+```
+EFI\Microsoft\Boot\BCD
+```
+
+Berisi konfigurasi boot.
+
+Contoh informasi
+
+- Boot Manager
+- Recovery
+- Safe Mode
+
+---
+
+# NTUSER.DAT
+
+Lokasi
+
+```
+C:\Users\<User>\NTUSER.DAT
+```
+
+Hive paling penting dalam User Activity.
+
+## Artefak Penting
+
+| Artefak | Fungsi |
+|----------|--------|
+| UserAssist | Program yang dijalankan |
+| RunMRU | Riwayat Win+R |
+| RecentDocs | Dokumen terakhir |
+| TypedURLs | URL yang diketik |
+| OpenSaveMRU | File dibuka/disimpan |
+| WordWheelQuery | Riwayat pencarian Start Menu |
+| MountPoints2 | USB user |
+| Explorer\RecentDocs | File terakhir |
+
+### Menjawab Pertanyaan
+
+- Program apa dijalankan?
+- File apa terakhir dibuka?
+- URL apa diketik?
+- Apa yang diketik pada Run?
+- USB milik user?
+
+---
+
+# UsrClass.dat
+
+Lokasi
+
+```
+C:\Users\<User>\AppData\Local\Microsoft\Windows\UsrClass.dat
+```
+
+Berisi konfigurasi Explorer.
+
+## Artefak
+
+| Artefak | Fungsi |
+|----------|--------|
+| ShellBags | Folder yang pernah dibuka |
+| BagMRU | Struktur folder |
+| MuiCache | Program yang pernah dijalankan |
+
+### Menjawab Pertanyaan
+
+- Folder apa yang pernah diakses?
+- Program apa pernah dijalankan?
+
+---
+
+# Struktur Output KapeTriage
+
+```
+Evidence
+│
+├── Registry
+│   ├── SYSTEM
+│   ├── SOFTWARE
+│   ├── SAM
+│   ├── SECURITY
+│   ├── DEFAULT
+│   ├── NTUSER.DAT
+│   ├── UsrClass.dat
+│   └── COMPONENTS
+│
+├── EventLogs
+├── Browser
+├── Prefetch
+├── JumpLists
+├── SRUM
+├── RecycleBin
+├── Amcache
+└── dll
+```
+
+---
+
+# Workflow Analisis
+
+```
+Image / Live Windows
+        │
+        ▼
+KapeTriage
+        │
+        ▼
+Evidence
+        │
+        ├── Registry
+        ├── Event Logs
+        ├── Browser
+        ├── Prefetch
+        │
+        ▼
+EZParser
+        │
+        ▼
+CSV
+        │
+        ▼
+Jika perlu investigasi manual
+        │
+        ▼
+Registry Explorer
+```
+
+---
+
+# Prioritas Belajar untuk CTF
+
+## Sangat Sering Muncul
+
+- SYSTEM
+- SOFTWARE
+- NTUSER.DAT
+- UsrClass.dat
+
+## Kadang Muncul
+
+- SAM
+- SECURITY
+
+## Jarang Muncul
+
+- DEFAULT
+- COMPONENTS
+- BCD
+
+---
+
+# Cheat Sheet Singkat
+
+| Hive | Fokus Analisis |
+|------|----------------|
+| SYSTEM | USB, Shutdown, TimeZone, Computer Name |
+| SOFTWARE | Installed Software, Startup, Network |
+| SAM | User Account |
+| SECURITY | LSA Secrets |
+| NTUSER.DAT | User Activity |
+| UsrClass.dat | ShellBags, Folder History |
+| DEFAULT | Default Profile |
+| COMPONENTS | Windows Update |
+| BCD | Boot Configuration |
 
 
 # Breakdown Tools Forensik Windows — Eric Zimmerman's Tools (EZtools) & Autopsy
